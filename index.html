@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Our Timeline</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+  <style>
+    /* Global Styles */
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+      font-size: 12pt;
+      background: none;
+    }
+    
+    /* --- Dynamic Background CSS --- */
+    .gradient-bg {
+      width: 100vw;
+      height: 100vh;
+      position: fixed; /* stays fixed in the viewport */
+      overflow: hidden;
+      background: linear-gradient(40deg, rgb(7, 15, 46), rgb(0, 40, 80));
+      top: 0;
+      left: 0;
+      z-index: -1; /* placed behind all other content */
+    }
+    
+    .gradient-bg svg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    :root {
+      --color-bg1: rgb(5, 10, 30);
+      --color-bg2: rgb(10, 15, 40);
+      --color1: 75, 0, 130;    /* Indigo */
+      --color2: 85, 15, 145;
+      --color3: 95, 10, 155;
+      --color4: 105, 5, 165;
+      --color5: 115, 0, 175;
+      --color-interactive: 150, 100, 200;
+      --circle-size: 60%;
+      --blending: hard-light;
+    }
+    
+    @keyframes moveInCircle {
+      0% { transform: rotate(0deg); }
+      50% { transform: rotate(180deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes moveVertical {
+      0% { transform: translateY(-50%); }
+      50% { transform: translateY(50%); }
+      100% { transform: translateY(-50%); }
+    }
+    
+    @keyframes moveHorizontal {
+      0% { transform: translateX(-50%) translateY(-10%); }
+      50% { transform: translateX(50%) translateY(10%); }
+      100% { transform: translateX(-50%) translateY(-10%); }
+    }
+    
+    .gradients-container {
+      filter: url(#goo) blur(40px);
+      width: 100%;
+      height: 100%;
+    }
+    
+    .g1, .g2, .g3, .g4, .g5 {
+      position: absolute;
+      mix-blend-mode: var(--blending);
+      background-repeat: no-repeat;
+      opacity: 1;
+    }
+    
+    .g1 {
+      background: radial-gradient(circle at center, rgba(var(--color1), 0.8) 0, rgba(var(--color1), 0) 50%);
+      width: var(--circle-size);
+      height: var(--circle-size);
+      top: calc(50% - var(--circle-size) / 2);
+      left: calc(50% - var(--circle-size) / 2);
+      transform-origin: center center;
+      animation: moveVertical 30s ease infinite;
+    }
+    
+    .g2 {
+      background: radial-gradient(circle at center, rgba(var(--color2), 0.8) 0, rgba(var(--color2), 0) 50%);
+      width: var(--circle-size);
+      height: var(--circle-size);
+      top: calc(50% - var(--circle-size) / 2);
+      left: calc(50% - var(--circle-size) / 2);
+      transform-origin: calc(50% - 400px);
+      animation: moveInCircle 20s reverse infinite;
+    }
+    
+    .g3 {
+      background: radial-gradient(circle at center, rgba(var(--color3), 0.8) 0, rgba(var(--color3), 0) 50%);
+      width: var(--circle-size);
+      height: var(--circle-size);
+      top: calc(50% - var(--circle-size) / 2 + 200px);
+      left: calc(50% - var(--circle-size) / 2 - 500px);
+      transform-origin: calc(50% + 400px);
+      animation: moveInCircle 40s linear infinite;
+    }
+    
+    .g4 {
+      background: radial-gradient(circle at center, rgba(var(--color4), 0.8) 0, rgba(var(--color4), 0) 50%);
+      width: var(--circle-size);
+      height: var(--circle-size);
+      top: calc(50% - var(--circle-size) / 2);
+      left: calc(50% - var(--circle-size) / 2);
+      transform-origin: calc(50% - 200px);
+      animation: moveHorizontal 40s ease infinite;
+      opacity: 0.7;
+    }
+    
+    .g5 {
+      background: radial-gradient(circle at center, rgba(var(--color5), 0.8) 0, rgba(var(--color5), 0) 50%);
+      width: calc(var(--circle-size) * 2);
+      height: calc(var(--circle-size) * 2);
+      top: calc(50% - var(--circle-size));
+      left: calc(50% - var(--circle-size));
+      transform-origin: calc(50% - 800px) calc(50% + 200px);
+      animation: moveInCircle 20s ease infinite;
+    }
+    
+    .interactive {
+      position: absolute;
+      background: radial-gradient(circle at center, rgba(var(--color-interactive), 0.8) 0%, rgba(var(--color-interactive), 0) 20%);
+      mix-blend-mode: var(--blending);
+      width: 200%;
+      height: 200%;
+      top: -100%;
+      left: -100%;
+      opacity: 0.7;
+    }
+    
+    .night {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      /* z-index not set here so the entire background remains behind timeline */
+    }
+    
+    .star-container {
+      position: absolute;
+    }
+    
+    .star {
+      height: 6px;
+      background: linear-gradient(-45deg, #FFFFFF, rgba(255, 255, 255, 0));
+      filter: drop-shadow(0 0 8px #FFFFFF);
+      border-radius: 999px;
+      animation: tail 3s ease-in-out, falling 3s ease-in-out, fadeHalf 3s ease-in-out;
+    }
+    
+    .shooting-star {
+      animation-iteration-count: 1, 1, 1;
+    }
+    
+    @keyframes tail {
+      0% { width: 0; }
+      30% { width: 110px; }
+      100% { width: 0; }
+    }
+    
+    @keyframes falling {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(2000px); }
+    }
+    
+    @keyframes fadeHalf {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+    
+    .star::before, .star::after {
+      content: '';
+      position: absolute;
+      top: calc(50% - 2px);
+      right: 0;
+      height: 4px;
+      background: linear-gradient(-45deg, rgba(255,255,255,0), #FFFFFF, rgba(255,255,255,0));
+      border-radius: 100%;
+      transform: translateX(50%) rotateZ(45deg);
+      animation: shining 3s ease-in-out;
+    }
+    
+    @keyframes shining {
+      0% { width: 0; }
+      50% { width: 30px; }
+      100% { width: 0; }
+    }
+    
+    .star::after {
+      transform: translateX(50%) rotateZ(-45deg);
+    }
+    
+    /* --- Timeline CSS --- */
+    /* Remove the timeline file’s background (we’re using the dynamic background) */
+    #scrollWrapper {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      width: 100vw;
+      height: 100vh;
+      overflow-x: scroll;
+      overflow-y: hidden;
+      position: relative;
+      z-index: 10; /* appears above the background */
+    }
+    
+    #scrollWrapper::-webkit-scrollbar {
+      display: none;
+    }
+    
+    #timelineContainer {
+      position: relative;
+      height: 100vh;
+    }
+    
+    #timelineLine {
+      position: absolute;
+      left: 0;
+      height: 3px;
+      background-color: black;
+      width: 100%;
+    }
+    
+    .eventTick {
+      position: absolute;
+      width: 3px;
+      height: 12px;
+      background-color: black;
+    }
+    
+    .dateLabel {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 2px 4px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(5px);
+      border-radius: 4px;
+      color: black;
+      font-size: 12px;
+      white-space: nowrap;
+      top: 16px;
+    }
+    
+    .tooltip {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(5px);
+      border-radius: 4px;
+      font-size: 12px;
+      display: none;
+      white-space: normal;
+      max-width: 200px;
+      width: max-content;
+      top: 39px;
+      box-sizing: border-box;
+      word-break: break-word;
+    }
+    
+    .eventTick:hover .tooltip {
+      display: block;
+    }
+    
+    .eventImage {
+      position: absolute;
+      border-radius: 8px;
+      width: 100px;
+      height: 150px;
+      object-fit: cover;
+    }
+
+    .background-label {
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 5rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: bold;
+      color: rgba(255, 255, 255, 0.4); /* 50% opacity */
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 1; /* Between background (z-index: -1) and timeline (z-index: 10) */
+      pointer-events: none; /* So it doesn’t interfere with interactions */
+      white-space: nowrap;
+    }
+    
+    #customScrollbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100vw;
+      height: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      z-index: 9999;
+    }
+    
+    #scrollbarHandle {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(5px);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <!-- Dynamic Background -->
+  <div class="gradient-bg">
+    <!-- SVG Filter Definition for "goo" -->
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+      <defs>
+        <filter id="goo">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+          <feColorMatrix in="blur" mode="matrix" values="
+            1 0 0 0 0
+            0 1 0 0 0
+            0 0 1 0 0
+            0 0 0 18 -7" result="goo" />
+          <feBlend in="SourceGraphic" in2="goo" />
+        </filter>
+      </defs>
+    </svg>
+    <div class="gradients-container">
+      <div class="g1"></div>
+      <div class="g2"></div>
+      <div class="g3"></div>
+      <div class="g4"></div>
+      <div class="g5"></div>
+    </div>
+    <div class="interactive"></div>
+  </div>
+  
+  <!-- Shooting Stars -->
+  <div class="night"></div>
+
+  <div class="background-label">i love you <3</div>
+  
+  <!-- Timeline Content -->
+  <div id="scrollWrapper">
+    <div id="timelineContainer">
+      <div id="timelineLine"></div>
+      <!-- Timeline events will be inserted by JavaScript -->
+    </div>
+  </div>
+  <div id="customScrollbar">
+    <div id="scrollbarHandle"></div>
+  </div>
+  
+  <script>
+    /* Dynamic Background Script */
+    document.addEventListener('DOMContentLoaded', function() {
+      const interBubble = document.querySelector('.interactive');
+      let curX = 0, curY = 0, tgX = 0, tgY = 0;
+      function move() {
+        curX += (tgX - curX) / 20;
+        curY += (tgY - curY) / 20;
+        interBubble.style.transform = "translate(" + Math.round(curX) + "px, " + Math.round(curY) + "px)";
+        requestAnimationFrame(move);
+      }
+      window.addEventListener('mousemove', function(event) {
+        tgX = event.clientX;
+        tgY = event.clientY;
+      });
+      move();
+    });
+    
+    // Shooting Stars
+    (function createShootingStars() {
+      const nightContainer = document.querySelector('.night');
+      function createStar() {
+        const starContainer = document.createElement('div');
+        starContainer.classList.add('star-container');
+        const startX = Math.random() * window.innerWidth;
+        const startY = -50;
+        starContainer.style.left = startX + 'px';
+        starContainer.style.top = startY + 'px';
+        const angle = 60 + Math.random() * 60;
+        starContainer.style.transform = 'rotate(' + angle + 'deg)';
+        const star = document.createElement('div');
+        star.classList.add('star', 'shooting-star');
+        const delay = Math.random() * 1.5;
+        star.style.animationDelay = delay + 's, ' + delay + 's, ' + delay + 's';
+        star.style.opacity = 0.8;
+        starContainer.appendChild(star);
+        nightContainer.appendChild(starContainer);
+        setTimeout(() => {
+          starContainer.remove();
+        }, 3500);
+      }
+      function scheduleStar() {
+        const interval = 2000 + Math.random() * 2000;
+        setTimeout(() => {
+          createStar();
+          scheduleStar();
+        }, interval);
+      }
+      scheduleStar();
+    })();
+    
+    /* Timeline Script */
+    // Configuration Constants
+    const PIXELS_PER_DAY = 55;
+    const IMAGE_WIDTH = 100;
+    const IMAGE_HEIGHT = 150;
+    const IMAGE_MARGIN = 5;
+    const TIMELINE_GAP = 10;
+    
+    function getTimelineY() {
+      return window.innerHeight * 0.8;
+    }
+    
+    // Web Worker Setup for Loading Timeline Data
+    const workerCode = `
+      self.onmessage = function(e) {
+        const url = e.data.url;
+        fetch(url)
+          .then(res => res.json())
+          .then(data => {
+            self.postMessage({ timelineData: data });
+          })
+          .catch(err => {
+            self.postMessage({ error: err.message });
+          });
+      };
+    `;
+    const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
+    const workerUrl = URL.createObjectURL(workerBlob);
+    const timelineWorker = new Worker(workerUrl);
+    timelineWorker.postMessage({ url: new URL('timeline.json', location.href).href });
+    timelineWorker.onmessage = (e) => {
+      if (e.data.error) {
+        console.error('Worker error: ', e.data.error);
+        return;
+      }
+      const data = e.data.timelineData;
+      initializeTimeline(data);
+    };
+    
+    function initializeTimeline(timelineData) {
+      if (!Array.isArray(timelineData)) {
+        console.error('Invalid timeline data format.');
+        return;
+      }
+      timelineData.forEach(event => {
+        event.dateObj = parseDate(event.date);
+      });
+      timelineData.sort((a, b) => a.dateObj - b.dateObj);
+      
+      const timelineContainer = document.getElementById('timelineContainer');
+      const scrollWrapper = document.getElementById('scrollWrapper');
+      const timelineLine = document.getElementById('timelineLine');
+      const scrollbarHandle = document.getElementById('scrollbarHandle');
+      
+      let currentX = 100;
+      timelineData[0].xPos = currentX;
+      for (let i = 1; i < timelineData.length; i++) {
+        let gap = diffInDays(timelineData[i - 1].dateObj, timelineData[i].dateObj);
+        let distance = (PIXELS_PER_DAY * 2) + ((gap - 1) * 25);
+        currentX += distance;
+        timelineData[i].xPos = currentX;
+      }
+      
+      const timelineWidth = currentX + 200;
+      timelineContainer.style.width = timelineWidth + 'px';
+      const timelineY = getTimelineY();
+      timelineLine.style.top = timelineY + 'px';
+      
+      timelineData.forEach(event => {
+        const xPos = event.xPos;
+        const tickContainer = document.createElement('div');
+        tickContainer.className = 'eventTick';
+        tickContainer.style.left = xPos + 'px';
+        tickContainer.style.top = (timelineY - 6) + 'px';
+        
+        const dateLabel = document.createElement('div');
+        dateLabel.className = 'dateLabel';
+        dateLabel.innerText = event.date;
+        tickContainer.appendChild(dateLabel);
+        
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        if (event.events && event.events.length > 0) {
+          const list = document.createElement('ul');
+          list.style.margin = '0';
+          list.style.padding = '0 0 0 16px';
+          list.style.listStyleType = 'disc';
+          event.events.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            list.appendChild(li);
+          });
+          tooltip.appendChild(list);
+        } else {
+          tooltip.innerText = '';
+        }
+        tickContainer.appendChild(tooltip);
+        timelineContainer.appendChild(tickContainer);
+        
+        if (event.images && event.images.length > 0) {
+          const numImages = event.images.length;
+          const totalImagesHeight = numImages * IMAGE_HEIGHT + (numImages - 1) * IMAGE_MARGIN;
+          const startTop = timelineY - TIMELINE_GAP - totalImagesHeight;
+          event.images.forEach((base64String, i) => {
+            const img = document.createElement('img');
+            img.className = 'eventImage';
+            img.setAttribute('data-src', 'data:image/png;base64,' + base64String);
+            img.src = '';
+            img.style.left = (xPos - IMAGE_WIDTH / 2) + 'px';
+            img.style.top = (startTop + i * (IMAGE_HEIGHT + IMAGE_MARGIN)) + 'px';
+            timelineContainer.appendChild(img);
+          });
+        }
+      });
+      
+      // Lazy Loading for Images
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            const dataSrc = img.getAttribute('data-src');
+            if (dataSrc && img.src !== dataSrc) {
+              img.src = dataSrc;
+            }
+            observer.unobserve(img);
+          }
+        });
+      }, {
+        root: scrollWrapper,
+        rootMargin: '100px',
+        threshold: 0.01
+      });
+      document.querySelectorAll('.eventImage').forEach(img => observer.observe(img));
+      
+      // Custom Scrollbar
+      function updateScrollbar() {
+        const visibleWidth = scrollWrapper.clientWidth;
+        const totalWidth = timelineContainer.scrollWidth;
+        const scrollLeft = scrollWrapper.scrollLeft;
+        const handleWidth = visibleWidth * (visibleWidth / totalWidth);
+        scrollbarHandle.style.width = handleWidth + 'px';
+        const maxScroll = totalWidth - visibleWidth;
+        const maxHandleMove = visibleWidth - handleWidth;
+        const handleLeft = (scrollLeft / maxScroll) * maxHandleMove;
+        scrollbarHandle.style.left = handleLeft + 'px';
+      }
+      scrollWrapper.addEventListener('scroll', updateScrollbar);
+      window.addEventListener('resize', () => {
+        updateScrollbar();
+        const newTimelineY = getTimelineY();
+        timelineLine.style.top = newTimelineY + 'px';
+      });
+      updateScrollbar();
+      
+      let isDragging = false;
+      let dragStartX = 0;
+      let initialScrollLeft = 0;
+      scrollbarHandle.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        dragStartX = e.clientX;
+        initialScrollLeft = scrollWrapper.scrollLeft;
+        document.body.style.userSelect = 'none';
+      });
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - dragStartX;
+        const visibleWidth = scrollWrapper.clientWidth;
+        const totalWidth = timelineContainer.scrollWidth;
+        const maxScroll = totalWidth - visibleWidth;
+        const maxHandleMove = visibleWidth - scrollbarHandle.clientWidth;
+        const scrollDelta = (deltaX / maxHandleMove) * maxScroll;
+        scrollWrapper.scrollLeft = initialScrollLeft + scrollDelta;
+      });
+      document.addEventListener('mouseup', () => {
+        isDragging = false;
+        document.body.style.userSelect = 'auto';
+      });
+      scrollWrapper.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        scrollWrapper.scrollLeft += e.deltaY;
+      }, { passive: false });
+    }
+    
+    function parseDate(dateStr) {
+      const parts = dateStr.split('/');
+      return new Date(parts[2], parts[0] - 1, parts[1]);
+    }
+    
+    function diffInDays(date1, date2) {
+      return (date2 - date1) / (1000 * 60 * 60 * 24);
+    }
+  </script>
+</body>
+</html>
